@@ -93,7 +93,7 @@ class auto_partitioner_impl {
 public:
 	// thread_id is initialized to "no thread" and will be set on first split
 	auto_partitioner_impl(Iter begin, Iter end, std::size_t grain)
-		: iter_begin(begin), iter_end(end), grain(grain) {}
+		: iter_begin(begin), iter_end(end), grain(grain), num_threads(0), last_thread() {}
 	Iter begin() const
 	{
 		return iter_begin;

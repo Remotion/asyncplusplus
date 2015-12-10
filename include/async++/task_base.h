@@ -85,7 +85,7 @@ struct LIBASYNC_CACHELINE_ALIGN task_base: public ref_count_base<task_base, task
 
 	// Initialize task state
 	task_base()
-		: state(task_state::pending) {}
+		: state(task_state::pending), event_task_got_task(false), vtable(nullptr) {}
 
 	// Check whether the task is ready and include an acquire barrier if it is
 	bool ready() const
