@@ -46,6 +46,24 @@ void internal_parallel_for(Sched& sched, Partitioner partitioner, const Func& fu
 	t.get();
 }
 
+template<typename Sched, typename Partitioner, typename Func>
+void internal_parallel_for_range(Sched& sched, Partitioner partitioner, const Func& func)
+{
+	// Split the partition, run inline if no more splits are possible
+	auto subpart = partitioner.split();
+	if (subpart.begin() == subpart.end()) {
+		func(irange(partitioner.begin()[0],partitioner.end()[0]));
+		return;
+	}
+
+	// Run the function over each half in parallel
+	auto&& t = async::local_spawn(sched, [&sched, &subpart, &func] {
+		detail::internal_parallel_for_range(sched, std::move(subpart), func);
+	});
+	detail::internal_parallel_for_range(sched, std::move(partitioner), func);
+	t.get();
+}
+
 } // namespace detail
 
 // Run a function for each element in a range
@@ -73,5 +91,34 @@ void parallel_for(std::initializer_list<T> range, const Func& func)
 {
 	async::parallel_for(async::make_range(range.begin(), range.end()), func);
 }
+
+
+#if 1 
+// Run a function for each element in a range
+template<typename Sched, typename Range, typename Func>
+void parallel_for_range(Sched& sched, Range&& range, const Func& func)
+{
+	detail::internal_parallel_for_range(sched, async::to_partitioner(std::forward<Range>(range)), func);
+}
+
+// Overload with default scheduler
+template<typename Range, typename Func>
+void parallel_for_range(Range&& range, const Func& func)
+{
+	async::parallel_for_range(::async::default_scheduler(), range, func);
+}
+
+// Overloads with std::initializer_list
+template<typename Sched, typename T, typename Func>
+void parallel_for_range(Sched& sched, std::initializer_list<T> range, const Func& func)
+{
+	async::parallel_for_range(sched, async::make_range(range.begin(), range.end()), func);
+}
+template<typename T, typename Func>
+void parallel_for_range(std::initializer_list<T> range, const Func& func)
+{
+	async::parallel_for_range(async::make_range(range.begin(), range.end()), func);
+}
+#endif
 
 } // namespace async
