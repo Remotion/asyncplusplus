@@ -46,13 +46,13 @@ inline bool is_finished(task_state s)
 // generated code size.
 struct task_base_vtable {
 	// Destroy the function and result
-	void (*destroy)(task_base*) LIBASYNC_NOEXCEPT;
+	void (*destroy)(task_base*) /*LIBASYNC_NOEXCEPT*/;
 
 	// Run the associated function
-	void (*run)(task_base*) LIBASYNC_NOEXCEPT;
+	void (*run)(task_base*) /*LIBASYNC_NOEXCEPT*/;
 
 	// Cancel the task with an exception
-	void (*cancel)(task_base*, std::exception_ptr&&) LIBASYNC_NOEXCEPT;
+	void (*cancel)(task_base*, std::exception_ptr&&) /*LIBASYNC_NOEXCEPT*/;
 
 	// Schedule the task using its scheduler
 	void (*schedule)(task_base* parent, task_ptr t);
