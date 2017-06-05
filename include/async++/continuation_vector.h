@@ -135,8 +135,9 @@ public:
 		internal_data data = atomic_data.load(std::memory_order_relaxed);
 		if (data.get_flags() & flags::is_vector) {
 			// No need to lock the mutex, we are the only thread at this point
-			for (task_base* i: data.get_ptr<vector_data>()->vector)
+			for (task_base* i : data.get_ptr<vector_data>()->vector) {
 				task_ptr tmp(i);
+			}
 			delete data.get_ptr<vector_data>();
 		} else {
 			// If the data is locked then the inline pointer is already gone
